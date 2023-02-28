@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "fedora-user-activity"
+version = "0.1.0"
+description = "Gather the statistics of active users over the course of last 90 days"
+authors = ["Akashdeep Dhar <akashdeep.dhar@gmail.com>"]
+license = "GPL-3.0-or-later"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.28.2"
+fasjson-client = "^1.0.7"
+
+[tool.poetry.dev-dependencies]
+isort = "^5.12.0"
+flake8 = "<4"
+black = "^23.1.0"
+pytest-black = "^0.3.12"
+pytest-flake8 = "^1.0.7"
+pytest-isort = "^3.1.0"
+pytest = "^7.2.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

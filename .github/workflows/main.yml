@@ -1,0 +1,62 @@
+name: Periodically update the list of usernames
+
+on:
+  schedule:
+    - cron: 0 0/4 * * *
+
+jobs:
+
+  ci-checks:
+    runs-on: ubuntu-latest
+    container: fedorapython/fedora-python-tox:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install the base dependencies
+        run: |
+             python3 -m pip install --upgrade poetry tox
+      - name: Check the correctness of the project configuration
+        run: |
+             poetry check
+      - name: Check the quality of the code
+        run: |
+             tox -e black
+             tox -e flake8
+             tox -e isort
+
+  ci-update:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install the development dependency package
+        run: |
+             sudo dnf install gcc krb5-devel krb5-workstation poetry python3-devel python3-pip --assumeyes
+      - name: Add the required workarounds to allow for authentication
+        run: |
+             sed -ri "s/default_ccache_name/#default_ccache_name/g" /etc/krb5.conf
+             cat /etc/krb5.conf
+      - name: Authenticate a new session in the mentioned realm
+        run: |
+             echo -n ${{ secrets.KERBPASS }} | kinit ${{ secrets.KERBUSER }}
+      - name: Install the project assets in the root directory
+        run: |
+             poetry config virtualenvs.create false
+             poetry install
+      - name: Fetch the list of usernames from FASJSON
+        run: |
+             fuas namelist
+      - name: Copy over the file to the project directory
+        run: |
+             cp /var/tmp/namefile data/$(date +%Y%m%d-%H%M%Z)
+             cp /var/tmp/namefile data/namefile
+      - name: Commit the changes to the local repository
+        run: |
+             git config --local user.email ${{ secrets.USERMAIL }}
+             git config --local user.name ${{ secrets.USERNAME }}
+             git commit -asm "$(date +%Y%m%d-%H%M%Z): $(cat data/namefile | wc -l) usernames available"
+      - name: Push the new changes to the remote repository
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GHBTOKEN }}
+        env:
+          CI: true

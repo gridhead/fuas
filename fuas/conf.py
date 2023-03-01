@@ -25,7 +25,7 @@ useriden = "t0xic0der@FEDORAPROJECT.ORG"
 optnlist = ["frge", "srce"]
 
 totlqant = 0
-dfltsize = 10
+dfltsize = 1000
 namefile = "/var/tmp/namefile"
 
 cobj = Client(jsonloca, principal=useriden)

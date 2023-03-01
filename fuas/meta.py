@@ -35,20 +35,11 @@ def keepname():
         os.remove(conf.namefile)
     with open(conf.namefile, "a") as file:
         nmls = []
-        resp = conf.cobj.list_users(page_size=conf.dfltsize)
-        rslt = resp.result
-        for indx in rslt:
-            nmls.append(indx["username"])
+        for user in conf.cobj.list_all_entities("users", page_size=conf.dfltsize):
+            print(user)
+            nmls.append(user["username"])
             lqnt += 1
-        file.write("\n".join(nmls) + "\n")
-        iter = (conf.totlqant // conf.dfltsize) - 1
-        for indx in range(iter):
-            rslt = resp.next_page().result
-            nmls = []
-            for indx in rslt:
-                nmls.append(indx["username"])
-                lqnt += 1
-            file.write("\n".join(nmls) + "\n")
+            file.write(f"{user['username']}\n")
     fnsh = time.time()
     totl = fnsh - strt
     print("%d usernames stored in %d minutes and %d seconds" % (lqnt, totl // 60, totl % 60))

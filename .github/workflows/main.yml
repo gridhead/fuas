@@ -2,7 +2,7 @@ name: Periodically update the list of usernames
 
 on:
   schedule:
-    - cron: 0 0/1 * * *
+    - cron: 0 0/2 * * *
 
 jobs:
 
@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install the development dependency package
         run: |
-             sudo dnf install gcc krb5-devel krb5-workstation poetry python3-devel python3-pip --assumeyes
+             sudo dnf install gcc git krb5-devel krb5-workstation poetry python3-devel python3-pip --assumeyes
       - name: Add the required workarounds to allow for authentication
         run: |
              sed -ri "s/default_ccache_name/#default_ccache_name/g" /etc/krb5.conf

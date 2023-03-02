@@ -2,7 +2,7 @@ name: Periodically update the list of usernames
 
 on:
   schedule:
-    - cron: 0 0/2 * * *
+    - cron: 0/5 * * * *
 
 jobs:
 
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     container: fedorapython/fedora-python-tox:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v1
       - name: Install the base dependencies
         run: |
              python3 -m pip install --upgrade poetry tox
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     container: fedora:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v1
       - name: Install the development dependency package
         run: |
              sudo dnf install gcc git krb5-devel krb5-workstation poetry python3-devel python3-pip --assumeyes
@@ -44,16 +44,19 @@ jobs:
              poetry install
       - name: Fetch the list of usernames from FASJSON
         run: |
-             fuas namelist
+             # fuas namelist
+             ls -lha
       - name: Copy over the file to the project directory
         run: |
-             cp /var/tmp/namefile data/$(date +%Y%m%d-%H%M%Z)
-             cp /var/tmp/namefile data/namefile
+             # cp /var/tmp/namefile data/$(date +%Y%m%d-%H%M%Z)
+             # cp /var/tmp/namefile data/namefile
       - name: Commit the changes to the local repository
         run: |
+             git config --global --add safe.directory $(realpath .)
              git config --global user.email ${{ secrets.USERMAIL }}
              git config --global user.name ${{ secrets.USERNAME }}
-             git commit -asm "$(date +%Y%m%d-%H%M%Z): $(cat data/namefile | wc -l) usernames available"
+             # git commit -asm "$(date +%Y%m%d-%H%M%Z): $(cat data/namefile | wc -l) usernames available"
+             git status
       - name: Push the new changes to the remote repository
         uses: ad-m/github-push-action@master
         with:

@@ -1,6 +1,6 @@
 """
-Fedora User Activity
-Copyright (C) 2022 Akashdeep Dhar
+Fedora User Activity Statistics
+Copyright (C) 2023 Akashdeep Dhar
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

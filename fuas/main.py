@@ -1,6 +1,6 @@
 """
-Fedora User Activity
-Copyright (C) 2022 Akashdeep Dhar
+Fedora User Activity Statistics
+Copyright (C) 2023 Akashdeep Dhar
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,17 +20,24 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import click
 
 from fuas import __version__, conf
-from fuas.meta import getquant, keepname
+from fuas.meta import getquant, keepactv, keepname, readlist
 
 
 @click.group(name="fuas")
 @click.version_option(version=__version__, prog_name="fuas")
 def main():
-    conf.totlqant = getquant()
+    pass
 
 
-@main.command(
-    name="namelist", help="Fetch a list of usernames registered on the Fedora Account System"
-)
+@main.command(name="namelist", help="Fetch a list of usernames on the Fedora Account System")
 def namelist():
+    conf.totlqant = getquant()
     keepname()
+    print("%d usernames fetched in %d minutes and %d seconds" % (conf.lqnt, conf.cmin, conf.csec))
+
+
+@main.command(name="activity", help="Fetch a list of active usernames from Datagrepper")
+def activity():
+    conf.userqant, conf.userlist = readlist()
+    keepactv()
+    print("%d active users found in %d minutes and %d seconds" % (conf.aqnt, conf.rmin, conf.rsec))

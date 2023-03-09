@@ -34,10 +34,7 @@ def keepname():
     if os.path.isfile(conf.namefile):
         os.remove(conf.namefile)
     with open(conf.namefile, "a") as file:
-        nmls = []
         for user in conf.cobj.list_all_entities("users", page_size=conf.dfltsize):
-            print(user)
-            nmls.append(user["username"])
             lqnt += 1
             file.write(f"{user['username']}\n")
     fnsh = time.time()

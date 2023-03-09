@@ -1,4 +1,4 @@
-name: Periodically update the list of active users
+name: Periodically update the list of active usernames
 
 on:
   schedule:

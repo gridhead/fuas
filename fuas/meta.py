@@ -26,12 +26,6 @@ from fasjson_client import Client
 from fuas import conf
 
 
-def getquant():
-    cobj = Client(conf.jsonloca, principal=conf.useriden)
-    resp = cobj.list_users(page_size=1).page
-    return resp["total_results"]
-
-
 def keepname():
     strt = time.time()
     lqnt = 0
@@ -50,7 +44,7 @@ def keepname():
 def readlist():
     userlist = requests.get(conf.listlink).text.split("\n")
     userlist.remove("")
-    return len(userlist), userlist
+    return userlist
 
 
 def keepactv():
@@ -59,7 +53,8 @@ def keepactv():
     if os.path.isfile(conf.actvfile):
         os.remove(conf.actvfile)
     with open(conf.actvfile, "a") as file:
-        for username in conf.userlist:
+        userlist = readlist()
+        for username in userlist:
             response = requests.get(
                 conf.dgprlink,
                 params={

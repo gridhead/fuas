@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import click
 
 from fuas import __version__, conf
-from fuas.meta import getquant, keepactv, keepname, readlist
+from fuas.meta import keepactv, keepname
 
 
 @click.group(name="fuas")
@@ -31,13 +31,17 @@ def main():
 
 @main.command(name="namelist", help="Fetch a list of usernames on the Fedora Account System")
 def namelist():
-    conf.totlqant = getquant()
     keepname()
-    print("%d usernames fetched in %d minutes and %d seconds" % (conf.lqnt, conf.cmin, conf.csec))
+    print(
+        "%d available usernames fetched in %d minutes and %d seconds"
+        % (conf.lqnt, conf.cmin, conf.csec)
+    )
 
 
 @main.command(name="activity", help="Fetch a list of active usernames from Datagrepper")
 def activity():
-    conf.userqant, conf.userlist = readlist()
     keepactv()
-    print("%d active users found in %d minutes and %d seconds" % (conf.aqnt, conf.rmin, conf.rsec))
+    print(
+        "%d active usernames fetched in %d minutes and %d seconds"
+        % (conf.aqnt, conf.rmin, conf.rsec)
+    )

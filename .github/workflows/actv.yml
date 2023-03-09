@@ -1,43 +1,37 @@
-name: Periodically update the list of usernames
+name: Periodically update the list of active users
 
 on:
   schedule:
-    - cron: 0 0/3 * * *
+    - cron: 0/30 * * * *
 
 jobs:
 
-  ci-update:
+  ci-active:
     runs-on: ubuntu-latest
     container: fedora:latest
     steps:
       - uses: actions/checkout@v1
       - name: Install the development dependency package
         run: |
-             sudo dnf install gcc git krb5-devel krb5-workstation poetry python3-devel python3-pip --assumeyes
-      - name: Add the required workarounds to allow for authentication
-        run: |
-             sed -ri "s/default_ccache_name/#default_ccache_name/g" /etc/krb5.conf
-             cat /etc/krb5.conf
-      - name: Authenticate a new session in the mentioned realm
-        run: |
-             echo -n ${{ secrets.KERBPASS }} | kinit ${{ secrets.KERBUSER }}
+             sudo dnf install gcc git poetry python3-devel python3-pip --assumeyes
       - name: Install the project assets in the root directory
         run: |
              poetry config virtualenvs.create false
              poetry install
-      - name: Fetch the list of usernames from FASJSON
+      - name: Fetch the list and count of active usernames from Datagrepper
         run: |
-             fuas namelist
+             fuas activity
       - name: Copy over the file to the project directory
         run: |
-             cp /var/tmp/namefile data/namefile
+             cp /var/tmp/actvfile data/actvfile
+             cp /var/tmp/acqtfile data/acqtfile
       - name: Commit the changes to the local repository
         run: |
              git config --global --add safe.directory $(realpath .)
              git config --global user.email ${{ secrets.USERMAIL }}
              git config --global user.name ${{ secrets.USERNAME }}
              git status
-             git commit -asm "$(date +%Y%m%d-%H%M%Z): $(cat data/namefile | wc -l) username(s) available"
+             git commit -asm "$(date +%Y%m%d-%H%M%Z): $(cat data/acqtfile) username(s) active"
       - name: Push the new changes to the remote repository
         uses: ad-m/github-push-action@master
         with:

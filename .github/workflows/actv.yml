@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Install the development dependency package
         run: |
-             sudo dnf install gcc git poetry python3-devel python3-pip --assumeyes
+             sudo dnf install gcc git krb5-devel krb5-workstation poetry python3-devel python3-pip --assumeyes
       - name: Install the project assets in the root directory
         run: |
              poetry config virtualenvs.create false

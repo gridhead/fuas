@@ -2,10 +2,9 @@ name: Periodically update the list of active usernames
 
 on:
   schedule:
-    - cron: 0/10 * * * *
+    - cron: 0 0/6 * * *
 
 jobs:
-
   ci-active:
     runs-on: ubuntu-latest
     container: fedora:latest
@@ -27,9 +26,7 @@ jobs:
              poetry install
       - name: Fetch the list and count of active usernames from Datagrepper
         run: |
-             # fuas activity
-             echo "$(date +%Y%m%d-%H%M%Z)" > /var/tmp/actvfile
-             echo "$(date +%Y%m%d-%H%M%Z)" > /var/tmp/acqtfile
+             fuas activity
       - name: Pull the most recently made changes before moving in the modified files
         run: |
              git pull origin main

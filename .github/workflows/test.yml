@@ -3,7 +3,6 @@ name: Check the codebase for formatting errors
 on: [push, pull_request]
 
 jobs:
-
   ci-checks:
     runs-on: ubuntu-latest
     container: fedorapython/fedora-python-tox:latest

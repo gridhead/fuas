@@ -5,19 +5,24 @@ on:
     - cron: 0 0/3 * * *
 
 jobs:
-
   ci-update:
     runs-on: ubuntu-latest
     container: fedora:latest
     steps:
-      - uses: actions/checkout@v1
       - name: Install the development dependency package
         run: |
              sudo dnf install gcc git krb5-devel krb5-workstation poetry python3-devel python3-pip --assumeyes
+      - name: Configure Git before starting off with any Git related operations
+        run: |
+             git config --global --add safe.directory $(realpath .)
+             git config --global user.email ${{ secrets.USERMAIL }}
+             git config --global user.name ${{ secrets.USERNAME }}
+      - name: Clone the project repository in its current state
+        run: |
+             git clone https://${{ secrets.GTHBUSER }}:${{ secrets.GHBTOKEN }}@github.com/t0xic0der/fuas.git /__w/fuas/fuas
       - name: Add the required workarounds to allow for authentication
         run: |
              sed -ri "s/default_ccache_name/#default_ccache_name/g" /etc/krb5.conf
-             cat /etc/krb5.conf
       - name: Authenticate a new session in the mentioned realm
         run: |
              echo -n ${{ secrets.KERBPASS }} | kinit ${{ secrets.KERBUSER }}
@@ -28,19 +33,15 @@ jobs:
       - name: Fetch the list of usernames from FASJSON
         run: |
              fuas namelist
+      - name: Pull the most recently made changes before moving in the modified files
+        run: |
+             git pull origin main
       - name: Copy over the file to the project directory
         run: |
-             cp /var/tmp/namefile data/namefile
+             cp /var/tmp/namefile /__w/fuas/fuas/data/namefile
       - name: Commit the changes to the local repository
         run: |
-             git config --global --add safe.directory $(realpath .)
-             git config --global user.email ${{ secrets.USERMAIL }}
-             git config --global user.name ${{ secrets.USERNAME }}
-             git status
-             git commit -asm "$(date +%Y%m%d-%H%M%Z): $(cat data/namefile | wc -l) username(s) available"
+             git commit -asm "$(date +%Y%m%d-%H%M%Z): $(cat /__w/fuas/fuas/data/namefile | wc -l) username(s) available"
       - name: Push the new changes to the remote repository
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GHBTOKEN }}
-        env:
-          CI: true
+        run: |
+             git push origin main

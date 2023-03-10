@@ -2,7 +2,7 @@ name: Periodically update the list of active usernames
 
 on:
   schedule:
-    - cron: 0 0/3 * * *
+    - cron: 0/10 * * * *
 
 jobs:
 
@@ -10,31 +10,36 @@ jobs:
     runs-on: ubuntu-latest
     container: fedora:latest
     steps:
-      - uses: actions/checkout@v1
       - name: Install the development dependency package
         run: |
              sudo dnf install gcc git krb5-devel krb5-workstation poetry python3-devel python3-pip --assumeyes
+      - name: Configure Git before starting off with any Git related operations
+        run: |
+             git config --global --add safe.directory $(realpath .)
+             git config --global user.email ${{ secrets.USERMAIL }}
+             git config --global user.name ${{ secrets.USERNAME }}
+      - name: Clone the project repository locally and make it the current working directory
+        run: |
+             git clone https://${{ secrets.GTHBUSER }}:${{ secrets.GHBTOKEN }}@github.com/t0xic0der/fuas.git /__w/fuas/fuas
       - name: Install the project assets in the root directory
         run: |
              poetry config virtualenvs.create false
              poetry install
       - name: Fetch the list and count of active usernames from Datagrepper
         run: |
-             fuas activity
+             # fuas activity
+             echo "TEST" > /var/tmp/actvfile
+             echo "TEST" > /var/tmp/acqtfile
+      - name: Pull the most recently made changes before moving in the modified files
+        run: |
+             git pull origin main
       - name: Copy over the file to the project directory
         run: |
-             cp /var/tmp/actvfile data/actvfile
-             cp /var/tmp/acqtfile data/acqtfile
+             cp /var/tmp/actvfile /__w/fuas/fuas/data/actvfile
+             cp /var/tmp/acqtfile /__w/fuas/fuas/data/acqtfile
       - name: Commit the changes to the local repository
         run: |
-             git config --global --add safe.directory $(realpath .)
-             git config --global user.email ${{ secrets.USERMAIL }}
-             git config --global user.name ${{ secrets.USERNAME }}
-             git status
-             git commit -asm "$(date +%Y%m%d-%H%M%Z): $(cat data/acqtfile) username(s) active"
+             git commit -asm "$(date +%Y%m%d-%H%M%Z): $(cat /__w/fuas/fuas/data/acqtfile) username(s) active"
       - name: Push the new changes to the remote repository
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GHBTOKEN }}
-        env:
-          CI: true
+        run: |
+             git push origin main

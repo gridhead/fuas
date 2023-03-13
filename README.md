@@ -2,9 +2,15 @@
 
 or Fedora User Activity Statistics
 
-Automatically gather and update the statistics of active users in Fedora Project over the course of last given period of time
+AutoMAGICally gather and update the statistics of active users in Fedora Project over the course of last given period of time
 
 ## Usage
+
+### Superficially
+
+> This might not work sometimes due to the time limit for each job present for GitHub Actions.
+> The task for fetching a list of available usernames from FASJSON takes around 2 hours of time while 
+> the task for fetching a list of active usernames from Datagrepper takes over 6 hours of time.
 
 1. Install `curl` on your Fedora Linux installation, if not installed already.
    ```
@@ -22,6 +28,33 @@ Automatically gather and update the statistics of active users in Fedora Project
    ```
    echo "$(curl https://raw.githubusercontent.com/t0xic0der/fuas/main/data/acqtfile) usernames active"
    ```
+
+### Actively
+
+1. Install `cronie` and `podman` on your Fedora Linux installation, if not installed already.
+   ```
+   $ sudo dnf install cronie podman
+   ```
+2. Clone the repository to your local storage and make it your present working directory.
+   ```
+   $ git clone https://github.com/t0xic0der/fuas.git
+   $ cd fuas
+   ```
+3. Navigate into the [`cron`](https://github.com/t0xic0der/fuas/blob/main/cron/actv-push.Dockerfile) subdirectory and find a set of dockerfiles and shell scripts.
+   ```
+   $ cd cron
+   ```
+   [`actv-push.Dockerfile`](https://github.com/t0xic0der/fuas/blob/main/cron/actv-push.Dockerfile) - For generating a record of active usernames and pushing them to a Git repository  
+   [`actv-only.Dockerfile`](https://github.com/t0xic0der/fuas/blob/main/cron/actv-only.Dockerfile) - For generating a record of active usernames only  
+   [`name-push.Dockerfile`](https://github.com/t0xic0der/fuas/blob/main/cron/name-push.Dockerfile) - For generating a record of available usernames and pushing them to a Git repository  
+   [`name-only.Dockerfile`](https://github.com/t0xic0der/fuas/blob/main/cron/name-only.Dockerfile) - For generating a record of available usernames only  
+4. Make necessary changes to the shell scripts with the same names as their dockerfiles of your choice.
+5. Schedule building of these container images by adding an entry to the cron.
+   ```
+   crontab -e
+   ```
+   Please note that we strongly recommend running these build processes no more than twice a day keeping in mind the 
+   long-running and resource intensive nature of the requests made against the services like FASJSON and Datagrepper.
 
 ## Development
 
@@ -77,12 +110,12 @@ Automatically gather and update the statistics of active users in Fedora Project
    $ (venv) fuas namelist
    ```
    As this command makes a long-running and resource intensive request to the FASJSON service, it is strongly 
-   recommended to not run this command manually and instead rely on the automatically updated list in the 
-   project repository by using the 2nd step of the **Usage** section.
+   recommended to not run this command manually and instead rely on the automatically updated list in the project 
+   repository.
 9. Fetch and store the list and count of active usernames by executing the following command.
    ```
    $ (venv) fuas activity
    ```
    As this command makes a long-running and resource intensive request to the Datagrepper service, it is strongly 
    recommended to not run this command manually and instead rely on the automatically updated list and count in the 
-   project repository by using the 3rd and 4th steps of the **Usage** section.
+   project repository.

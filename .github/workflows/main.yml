@@ -2,7 +2,7 @@ name: Periodically update the list of available usernames
 
 on:
   schedule:
-    - cron: 0 0/3 * * *
+    - cron: 0 0 1 1 *
 
 jobs:
   ci-update:
